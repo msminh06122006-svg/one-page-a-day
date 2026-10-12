@@ -1,0 +1,558 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#FBFBF8" media="(prefers-color-scheme: light)">
+<meta name="theme-color" content="#13191E" media="(prefers-color-scheme: dark)">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="icon" type="image/png" sizes="32x32" href="favicon-32.png">
+<link rel="apple-touch-icon" href="apple-touch-icon.png">
+<title>One Page a Day</title>
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="One Page">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@400;500;600;700&family=Newsreader:ital,opsz,wght@0,6..72,400;0,6..72,500;0,6..72,600;1,6..72,400&display=swap" rel="stylesheet">
+<style>
+/* Layout: a ruled notebook with a red margin line, teal ink. Sibling of Conquer Vocab. */
+:root{
+  --paper:#FBFBF8;--sheet:#FFFFFF;--rule:rgba(70,110,170,.15);
+  --margin:#E9A7A0;--ink:#1D2430;--soft:#59626F;--faint:#959CA7;--line:#E2E5E9;
+  --muc:#12796D;--muc2:#0B5A51;--mucbg:#DCF1ED;--flame:#D9622B;
+  --bad:#C2402F;--badbg:#FBE9E7;
+  --ui:'Be Vietnam Pro',system-ui,-apple-system,'Segoe UI',Roboto,sans-serif;
+  --book:'Newsreader',Georgia,'Times New Roman',serif;
+}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){
+  --paper:#13191E;--sheet:#1A2228;--rule:rgba(140,180,220,.08);
+  --margin:#7E4A4A;--ink:#E7EBEE;--soft:#A7B1BA;--faint:#76818B;--line:#2B363F;
+  --muc:#4CC3B2;--muc2:#2A8D80;--mucbg:#163834;--flame:#F08A50;--bad:#F07B70;--badbg:#3D1F22;color-scheme:dark;
+}}
+:root[data-theme="dark"]{
+  --paper:#13191E;--sheet:#1A2228;--rule:rgba(140,180,220,.08);
+  --margin:#7E4A4A;--ink:#E7EBEE;--soft:#A7B1BA;--faint:#76818B;--line:#2B363F;
+  --muc:#4CC3B2;--muc2:#2A8D80;--mucbg:#163834;--flame:#F08A50;--bad:#F07B70;--badbg:#3D1F22;color-scheme:dark;
+}
+*,*::before,*::after{box-sizing:border-box}
+html,body{margin:0}
+:root{padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+[hidden]{display:none!important}
+body{background-color:var(--paper);color:var(--ink);font-family:var(--ui);font-size:16px;line-height:1.5;
+  background-image:repeating-linear-gradient(transparent 0 31px,var(--rule) 31px 32px);-webkit-tap-highlight-color:transparent;min-height:100vh}
+button,input,select,textarea{font:inherit;color:inherit}
+button{cursor:pointer}
+:focus-visible{outline:3px solid var(--muc);outline-offset:2px;border-radius:8px}
+.app{max-width:560px;margin:0 auto;padding:12px 16px 110px}
+header.top{display:flex;align-items:baseline;justify-content:space-between;gap:12px;padding:10px 2px 14px}
+.brand{font-family:var(--book);font-weight:600;font-size:28px;color:var(--muc);letter-spacing:-.01em;line-height:1.15}
+.sheet{background:var(--sheet);border:1px solid var(--line);border-radius:16px;position:relative;padding:18px 18px 18px 34px;margin-bottom:16px}
+.sheet::before{content:"";position:absolute;left:20px;top:0;bottom:0;width:1.5px;background:var(--margin)}
+.eyebrow{font-size:12px;font-weight:600;letter-spacing:.06em;text-transform:uppercase;color:var(--soft);margin:0 0 8px}
+h2{font-size:17px;font-weight:600;margin:0 0 10px}
+.hint{color:var(--soft);font-size:14px;margin:6px 0 0}
+.btn{border:0;border-radius:14px;padding:12px 18px;min-height:48px;font-weight:600;font-size:16px;transition:transform .08s}
+.btn:active{transform:translateY(2px)}
+.btn-primary{background:var(--muc);color:#fff;box-shadow:0 3px 0 var(--muc2)}
+.btn-ghost{background:var(--sheet);border:1.5px solid var(--line);box-shadow:0 3px 0 var(--line)}
+.btn-link{background:none;border:0;color:var(--muc);font-weight:600;padding:6px 0;min-height:0;box-shadow:none}
+.btn:disabled{opacity:.5}
+.btns{display:flex;gap:10px;flex-wrap:wrap;margin-top:14px}
+.btns .btn{flex:1 1 140px}
+/* streak hero */
+.hero{display:flex;align-items:center;gap:18px}
+.flame{width:84px;height:84px;flex:none;position:relative}
+.flame svg{width:100%;height:100%}
+.flame .n{position:absolute;inset:0;display:grid;place-items:center;padding-top:18px;font-weight:700;font-size:24px;color:#fff;font-variant-numeric:tabular-nums}
+.flame.off svg path{fill:var(--line)}
+.flame.off .n{color:var(--soft)}
+.hero .tx{min-width:0;flex:1}
+.hero .big{font-family:var(--book);font-weight:600;font-size:26px;line-height:1.2}
+.bar{height:12px;background:var(--line);border-radius:6px;overflow:hidden;margin-top:16px}
+.bar i{display:block;height:100%;background:var(--muc);border-radius:6px;transition:width .4s}
+.barlbl{display:flex;justify-content:space-between;font-size:14px;color:var(--soft);margin-top:6px;font-variant-numeric:tabular-nums}
+.barlbl b{color:var(--ink)}
+.week{display:grid;grid-template-columns:repeat(7,1fr);gap:6px;margin-top:16px}
+.wd{display:flex;flex-direction:column;align-items:center;gap:4px;font-size:12px;color:var(--soft)}
+.wd .c{width:30px;height:30px;border-radius:50%;border:2px solid var(--line);display:grid;place-items:center}
+.wd .c.part{border-color:var(--muc);border-style:dashed}
+.wd .c.met{background:var(--muc);border-color:var(--muc);color:#fff}
+.wd .c.today{box-shadow:0 0 0 2px var(--paper),0 0 0 4px var(--ink)}
+.wd .c svg{width:16px;height:16px}
+/* level-up */
+.lvl{border-color:var(--muc)}
+.lvl .big{font-family:var(--book);font-weight:600;font-size:22px;margin:0 0 6px}
+/* prompt */
+.kind{display:inline-block;font-size:12px;font-weight:600;color:var(--muc);background:var(--mucbg);border-radius:6px;padding:2px 8px;margin-bottom:8px}
+.prompt{font-family:var(--book);font-size:21px;line-height:1.45;margin:0;text-wrap:pretty}
+.resume{display:flex;align-items:center;gap:12px;border-top:1px dashed var(--line);margin-top:16px;padding-top:12px}
+.resume .tx{flex:1;min-width:0}
+.resume .t{font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.resume .s{font-size:13px;color:var(--soft)}
+.resume .btn{min-height:40px;padding:8px 14px;font-size:14px}
+/* heatmap */
+.heat{display:flex;gap:8px;overflow-x:auto;padding-bottom:4px}
+.heat .days{display:grid;grid-template-rows:repeat(7,16px);gap:3px;font-size:10px;color:var(--faint);line-height:16px}
+.heat .grid{display:grid;grid-auto-flow:column;grid-template-rows:repeat(7,16px);grid-auto-columns:16px;gap:3px}
+.cell{width:16px;height:16px;border-radius:4px;background:var(--line)}
+.cell.part{background:var(--muc);opacity:.4}
+.cell.met{background:var(--muc)}
+.cell.future{background:transparent;border:1px dashed var(--line)}
+.cell.today{outline:2px solid var(--ink);outline-offset:1px}
+.legend{display:flex;gap:14px;flex-wrap:wrap;font-size:13px;color:var(--soft);margin-top:10px}
+.legend span{display:inline-flex;align-items:center;gap:6px}
+.legend .sw{width:12px;height:12px;border-radius:3px;background:var(--muc)}
+.totals{display:flex;gap:18px;flex-wrap:wrap;margin-top:12px;font-size:14px;color:var(--soft)}
+.totals b{color:var(--ink);font-variant-numeric:tabular-nums}
+.quote{font-family:var(--book);font-size:18px;line-height:1.5;margin:0}
+.who{font-size:13px;color:var(--soft);margin-top:6px}
+/* tabs */
+nav.tabs{position:fixed;left:0;right:0;bottom:0;background:var(--sheet);border-top:1px solid var(--line);display:flex;justify-content:center;padding-bottom:env(safe-area-inset-bottom,0px);z-index:10}
+nav.tabs .in{display:flex;max-width:560px;width:100%}
+nav.tabs button{flex:1;background:none;border:0;padding:10px 0 12px;display:flex;flex-direction:column;align-items:center;gap:2px;font-size:12px;font-weight:500;color:var(--faint)}
+nav.tabs button[aria-current="page"]{color:var(--muc)}
+nav.tabs svg{width:24px;height:24px}
+/* journal */
+.search{width:100%;padding:12px 14px;border-radius:12px;border:1.5px solid var(--line);background:var(--sheet);font-size:16px}
+.dayhead{font-size:13px;font-weight:600;color:var(--soft);margin:18px 2px 8px}
+.entry{display:flex;gap:12px;align-items:flex-start;width:100%;text-align:left;background:var(--sheet);border:1px solid var(--line);border-radius:14px;padding:12px 14px;margin-bottom:8px}
+.entry .tx{flex:1;min-width:0}
+.entry .t{font-family:var(--book);font-weight:600;font-size:18px;line-height:1.3;overflow-wrap:anywhere}
+.entry .x1{font-size:14px;color:var(--soft);margin-top:2px;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+.entry .m{font-size:12px;color:var(--faint);margin-top:4px;display:flex;gap:8px;flex-wrap:wrap;align-items:center}
+.tag{font-size:11px;font-weight:600;border-radius:5px;padding:1px 6px;background:var(--mucbg);color:var(--muc)}
+.empty{color:var(--soft);text-align:center;padding:28px 8px}
+.empty .big{font-family:var(--book);font-size:22px;color:var(--ink);margin-bottom:6px}
+/* settings */
+.set{display:flex;justify-content:space-between;align-items:center;gap:12px;padding:12px 0;border-top:1px solid var(--line)}
+.set:first-of-type{border-top:0}
+.set .d{font-size:13px;color:var(--soft)}
+.set .tx{min-width:0}
+.inp{padding:10px 12px;border-radius:10px;border:1.5px solid var(--line);background:var(--paper);font-size:16px;max-width:50%}
+.goalhist{font-size:14px;color:var(--soft);margin:8px 0 0;font-variant-numeric:tabular-nums}
+/* writing session */
+.session{position:fixed;inset:0;z-index:20;background-color:var(--paper);background-image:repeating-linear-gradient(transparent 0 31px,var(--rule) 31px 32px);overflow-y:auto;padding:env(safe-area-inset-top,0px) 0 env(safe-area-inset-bottom,0px)}
+.session .in{max-width:640px;margin:0 auto;padding:10px 16px 140px;min-height:100%}
+.sbar{display:flex;align-items:center;gap:12px;padding:4px 0 10px;position:sticky;top:0;background:var(--paper);z-index:2}
+.x{width:40px;height:40px;border-radius:50%;border:0;background:none;color:var(--soft);display:grid;place-items:center;flex:none}
+.x svg{width:24px;height:24px}
+.prog{flex:1;height:10px;background:var(--line);border-radius:5px;overflow:hidden}
+.prog i{display:block;height:100%;background:var(--muc);border-radius:5px;transition:width .3s}
+.count{font-weight:700;font-variant-numeric:tabular-nums;color:var(--soft);font-size:15px;white-space:nowrap}
+.count.met{color:var(--muc)}
+.pr{background:var(--sheet);border:1px solid var(--line);border-radius:12px;padding:10px 14px;margin:6px 0 12px}
+.pr summary{cursor:pointer;font-weight:600;color:var(--muc);font-size:14px}
+.pr p{font-family:var(--book);font-size:18px;margin:8px 0 0;line-height:1.45}
+.pr .hint{font-family:var(--ui);font-size:13px}
+.titlein{width:100%;border:0;background:transparent;font-family:var(--book);font-weight:600;font-size:26px;padding:6px 0;line-height:32px}
+.titlein:focus{outline:none}
+.paperta{width:100%;min-height:60vh;border:0;resize:none;background:transparent;font-family:var(--book);font-size:19px;line-height:32px;padding:0;
+  background-image:repeating-linear-gradient(transparent 0 31px,var(--rule) 31px 32px);background-attachment:local}
+.paperta:focus{outline:none}
+.foot{position:fixed;left:0;right:0;bottom:0;padding:12px 16px calc(14px + env(safe-area-inset-bottom,0px));background:linear-gradient(transparent,var(--paper) 35%);z-index:25}
+.foot .in2{max-width:640px;margin:0 auto;display:flex;gap:10px}
+.foot .btn{flex:1}
+.fbbox{margin-top:12px}
+.fbtext{background:var(--sheet);border:1px solid var(--line);border-radius:14px;padding:14px 16px;font-size:15px;line-height:1.6;overflow-wrap:anywhere}
+.fbtext b{color:var(--muc)}
+.thinking{color:var(--soft);font-style:italic}
+.done{padding-top:20px}
+.done .big{font-family:var(--book);font-weight:600;font-size:44px;color:var(--muc);line-height:1.1;margin:8px 0}
+.danger{color:var(--bad);background:none;border:0;font-weight:600;padding:8px 0;font-size:14px;margin-top:20px}
+.danger.armed{background:var(--badbg);border-radius:10px;padding:8px 12px}
+.toast{position:fixed;left:50%;bottom:calc(96px + env(safe-area-inset-bottom,0px));transform:translateX(-50%);background:var(--ink);color:var(--paper);padding:10px 16px;border-radius:12px;font-size:14px;z-index:50;max-width:90%;text-align:center;opacity:0;transition:opacity .2s;pointer-events:none}
+.toast.show{opacity:1}
+@media (max-width:420px){.flame{width:72px;height:72px}.hero .big{font-size:22px}.wd .c{width:26px;height:26px}}
+@media (prefers-reduced-motion:reduce){*{transition:none!important}}
+</style>
+
+</head>
+<body>
+<div class="app" id="app"></div>
+<nav class="tabs" id="tabs"><div class="in">
+  <button data-act="go" data-v="home"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20h9"/><path d="M16.5 3.5a2.1 2.1 0 0 1 3 3L7 19l-4 1 1-4z"/></svg>Today</button>
+  <button data-act="go" data-v="log"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 5a2 2 0 0 1 2-2h13v16H6a2 2 0 0 0-2 2z"/><path d="M4 19V5"/><path d="M9 8h6M9 12h6"/></svg>Journal</button>
+  <button data-act="go" data-v="settings"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 6h10M18 6h2M4 12h4M12 12h8M4 18h12"/><circle cx="16" cy="6" r="2"/><circle cx="10" cy="12" r="2"/><circle cx="18" cy="18" r="2"/></svg>Settings</button>
+</div></nav>
+<div id="sess"></div>
+<div class="toast" id="toast" role="status" aria-live="polite"></div>
+
+<script>
+/* ============ PROMPTS ============ */
+const TIPS_KIND={
+ 'What if…':'Neil Gaiman: ideas come from asking "What if…?" Follow the question and see where it leads.',
+ 'If only…':'Neil Gaiman: "If only…" is the other question that starts stories.',
+ 'Want':'Kurt Vonnegut: every character should want something, even if it is only a glass of water.',
+ 'Trouble':'Kurt Vonnegut: make awful things happen to your characters so the reader sees what they are made of.',
+ 'Start late':'Kurt Vonnegut: start as close to the end as possible.',
+ 'Dialogue':'Real people rarely say what they mean. Let the talk dodge and circle.',
+ 'Senses':'One true, specific detail beats ten adjectives.',
+ 'True story':'Anne Lamott: good writing is about telling the truth. Start with your own life.',
+ 'Point of view':'Change who tells it and you change the whole story.',
+ 'Imitate':'Benjamin Franklin taught himself to write by rewriting essays he admired and comparing them with the originals.',
+ 'Constraint':'A small limit makes the blank page less scary.'
+};
+const PROMPTS=[
+['What if…','What if every lie you told erased one happy memory? Write the day someone finds out.'],
+['What if…','What if there were an alley that only appeared at 3 a.m.? Who walks into it first?'],
+['What if…','What if your grandmother left a letter that no one in the family could read?'],
+['What if…','What if your phone started getting texts from yourself, ten years from now?'],
+['What if…','What if a market vendor could tell which customers were about to have a bad day?'],
+['What if…','What if the neighbor\'s cat brought home a strange object every single night?'],
+['What if…','What if the city banned crying in public?'],
+['If only…','"If only I hadn\'t opened that door." Write the story that leads to this line.'],
+['If only…','If only you could trade one day from your past for one day in your future. Who trades, and which days?'],
+['Want','Someone desperately wants a glass of water but, for some reason, cannot ask for one. Write the scene.'],
+['Want','Two people want the only one of something in the room. Only one of them gets it.'],
+['Want','A child wants their parents to say the one thing they refuse to say.'],
+['Want','A character wants to be forgiven, but the other person isn\'t ready. Write the meeting.'],
+['Want','Someone wants to leave, and one very small reason keeps them from going.'],
+['Trouble','Take the gentlest character you can imagine and give them the worst day of their life. What do they do?'],
+['Trouble','A character just told a lie to protect someone. Now the lie is starting to grow.'],
+['Trouble','On the wedding day, an uninvited guest shows up.'],
+['Start late','Begin with this sentence: "By then, it was too late to turn back."'],
+['Start late','Write the last scene of a relationship. Don\'t explain what came before. Let the reader guess.'],
+['Start late','Open with a phone call at midnight.'],
+['Dialogue','Write a scene in dialogue only, no tags: two sisters dividing up their mother\'s things.'],
+['Dialogue','Two people talk about the weather, but they are really arguing about something else.'],
+['Dialogue','A job interview where the interviewer is the nervous one.'],
+['Senses','Describe a kitchen at six in the morning using only sound and smell. No sight.'],
+['Senses','Describe a rainstorm without using the word "rain."'],
+['Senses','Describe a person only through their hands.'],
+['Senses','A dish that belongs to one person. Describe the food so closely that we understand the person.'],
+['True story','Write about the first time you saw an adult who was afraid.'],
+['True story','An old object in your home. What has it witnessed?'],
+['True story','A friend you lost touch with. Tell just one moment.'],
+['True story','A family dinner where nobody says what they are actually thinking.'],
+['True story','Introduce the place you grew up to someone who has never been there.'],
+['Point of view','Retell an argument from the side of the person you disagreed with.'],
+['Point of view','Write a scene through the eyes of a five-year-old who misunderstands something important.'],
+['Point of view','A stranger watches your family for one afternoon. What do they notice?'],
+['Imitate','Pick a paragraph you love from a book. Note the point of each sentence, then rewrite it from your notes without looking. Compare.'],
+['Imitate','Write something completely ordinary in the voice of your favorite author.'],
+['Imitate','Take an old piece from your Journal and cut a third of the words without losing the meaning.'],
+['Constraint','Write a complete story in exactly 100 words, with a beginning, a turn and an end.'],
+['Constraint','Write a paragraph where each sentence is shorter than the one before.'],
+['Constraint','Write a letter you will never send.'],
+['Constraint','An old photograph. Who was standing just outside the frame?'],
+['Constraint','A small decision that changed an entire day.']
+].map(([k,t])=>({k,t}));
+
+const TIPS=[
+ ['Stephen King','If you want to be a writer, you must do two things above all others: read a lot and write a lot.'],
+ ['Anne Lamott','All good writers write terrible first drafts. That is how they get to good second drafts.'],
+ ['Haruki Murakami','He keeps the same routine every day. The repetition itself becomes the important thing.'],
+ ['Kurt Vonnegut','Every sentence must do one of two things: reveal character or advance the action.'],
+ ['Neil Gaiman','Everyone gets ideas while daydreaming or bored. Writers just notice when it happens.'],
+ ['Stephen King','Write with the door closed, rewrite with the door open.'],
+ ['Anne Lamott','Bird by bird. Today, just finish one short paragraph.'],
+ ['Kurt Vonnegut','Write to please just one person.'],
+ ['Stephen King','When you rewrite, your main job is taking out everything that is not the story.']
+];
+
+/* ============ HELPERS ============ */
+const $=s=>document.querySelector(s);
+function esc(s){return String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]))}
+const pad=n=>String(n).padStart(2,'0');
+function dk(d){d=d||new Date();return d.getFullYear()+'-'+pad(d.getMonth()+1)+'-'+pad(d.getDate())}
+function parseK(k){const [y,m,d]=k.split('-').map(Number);return new Date(y,m-1,d)}
+function addDays(k,n){const x=parseK(k);x.setDate(x.getDate()+n);return dk(x)}
+const today=()=>dk();
+const WD=['Sun','Mon','Tue','Wed','Thu','Fri','Sat'];
+const MON=['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+function niceDate(k){const t=today();if(k===t)return'Today';if(k===addDays(t,-1))return'Yesterday';const x=parseK(k);return WD[x.getDay()]+', '+MON[x.getMonth()]+' '+x.getDate()+(x.getFullYear()!==new Date().getFullYear()?', '+x.getFullYear():'')}
+function wc(t){const m=(t||'').trim().match(/\S+/g);return m?m.length:0}
+const num=n=>Number(n||0).toLocaleString('en-US');
+const pl=(n,w)=>num(n)+' '+w+(n===1?'':'s');
+function dayNo(k){return Math.round(parseK(k).getTime()/864e5)}
+function toast(t){const el=$('#toast');el.textContent=t;el.classList.add('show');clearTimeout(toast.t);toast.t=setTimeout(()=>el.classList.remove('show'),2800)}
+function md(t){return esc(t).replace(/\*\*(.+?)\*\*/g,'<b>$1</b>').replace(/\n/g,'<br>')}
+function armed(b,label){if(b.dataset.armed==='1')return true;b.dataset.armed='1';const old=b.textContent;b.classList.add('armed');b.textContent=label;clearTimeout(b._t);b._t=setTimeout(()=>{if(!b.isConnected)return;b.dataset.armed='';b.classList.remove('armed');b.textContent=old},3500);return false}
+function firstLine(t){const s=(t||'').trim().split('\n')[0];return s.length>60?s.slice(0,60)+'…':(s||'Untitled')}
+const IC={x:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M6 6l12 12M18 6 6 18"/></svg>',
+ check:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12l5 5 9-10"/></svg>'};
+
+/* ============ DATA ============ */
+const KEY='mndmt-v1',START_GOAL=200,STEP=20,EVERY=7;
+function blankPrefs(){return{goals:[{from:'2000-01-01',goal:START_GOAL}],askedOn:'',pDay:'',pN:0,tipDone:false,updated:0}}
+function load(){const b={entries:{},prefs:blankPrefs()};try{const s=JSON.parse(localStorage.getItem(KEY)||'null');if(s&&s.entries&&typeof s.entries==='object'){for(const k in s.entries){const e=s.entries[k];if(e&&e.kind==='write')b.entries[k]=e}if(s.prefs)Object.assign(b.prefs,s.prefs)}}catch(e){}return b}
+let S=load();
+let lsT=null;
+function saveLocal(){clearTimeout(lsT);lsT=setTimeout(()=>{try{localStorage.setItem(KEY,JSON.stringify(S))}catch(e){}},300)}
+function touchEntry(e){e.updated=Date.now();S.entries[e.id]=e;saveLocal();queue(e.id)}
+function touchPrefs(){S.prefs.updated=Date.now();saveLocal();queue('prefs')}
+function newId(){return'w-'+Date.now().toString(36)+Math.random().toString(36).slice(2,6)}
+function writes(){return Object.values(S.entries).filter(e=>e&&e.kind==='write'&&!e.deleted)}
+
+/* Goal history: each change applies from a date onward, so past days keep the goal they had. */
+function goalOn(k){let g=START_GOAL;for(const x of S.prefs.goals)if(x.from<=k)g=x.goal;return g}
+function currentGoal(){return goalOn(today())}
+function setGoal(g,from){S.prefs.goals=S.prefs.goals.filter(x=>x.from<from);S.prefs.goals.push({from,goal:g});touchPrefs()}
+
+/* Everything is stored on this device (localStorage). */
+let COL=null,SAMPLE=null;
+const dirty=new Set();let flushT=null,flushing=false;
+function queue(id){if(!COL)return;dirty.add(id);clearTimeout(flushT);flushT=setTimeout(flush,1500)}
+async function flush(){
+  if(!COL||flushing)return;flushing=true;
+  try{while(dirty.size){const id=dirty.values().next().value;dirty.delete(id);
+    const body=id==='prefs'?S.prefs:S.entries[id];if(!body)continue;
+    try{await COL.doc(id).set(JSON.parse(JSON.stringify(body)))}
+    catch(e){const c=e&&e.code;if(c==='quota_exceeded')toast('Your account storage is full. This piece is still saved in this browser.');else if(c==='invalid_argument')toast('This piece is too long to sync. It is still saved in this browser.');else if(c==='unavailable'){dirty.add(id);setTimeout(flush,4000+Math.random()*2000);break}}
+  }}finally{flushing=false}
+}
+
+/* ============ STATS ============ */
+function wordsByDay(){const m={};for(const e of writes()){const dd=e.daily||{};for(const d in dd)m[d]=(m[d]||0)+(dd[d]||0)}return m}
+const met=(m,k)=>(m[k]||0)>=goalOn(k);
+function streak(m){let d=today();if(!met(m,d))d=addDays(d,-1);let n=0;while(met(m,d)){n++;d=addDays(d,-1)}return n}
+function best(m){const ks=Object.keys(m).filter(k=>met(m,k)).sort();let b=0,c=0,p='';for(const k of ks){c=(p&&addDays(p,1)===k)?c+1:1;if(c>b)b=c;p=k}return b}
+/* Offer +20 words after every 7 goal days since the last offer. */
+function metSinceAsk(m){return Object.keys(m).filter(k=>met(m,k)&&(!S.prefs.askedOn||k>S.prefs.askedOn)).length}
+function shouldAsk(m){return metSinceAsk(m)>=EVERY&&S.prefs.askedOn!==today()}
+function promptToday(){const t=today();const n=S.prefs.pDay===t?S.prefs.pN:0;const L=PROMPTS.length;return PROMPTS[((dayNo(t)*7+n*11)%L+L)%L]}
+
+/* ============ SCREENS ============ */
+let view='home',logQ='',sess=null;
+function render(){
+  document.querySelectorAll('#tabs button').forEach(b=>b.setAttribute('aria-current',b.dataset.v===view?'page':'false'));
+  const q=document.activeElement&&document.activeElement.id==='lq';
+  $('#app').innerHTML=view==='home'?vHome():view==='log'?vLog():vSettings();
+  if(q){const i=$('#lq');i.focus();i.setSelectionRange(i.value.length,i.value.length)}
+}
+function flameSVG(){return'<svg viewBox="0 0 64 64" aria-hidden="true"><path fill="var(--flame)" d="M32 4c2 10 14 16 14 32a14 14 0 0 1-28 0c0-8 4-12 7-16 1 5 3 8 6 9-2-9 0-18 1-25z"/></svg>'}
+function levelCard(m){
+  if(!shouldAsk(m))return'';const g=currentGoal();
+  return`<section class="sheet lvl"><p class="eyebrow">${EVERY} goal days done</p><p class="big">Ready for ${num(g+STEP)} words a day?</p>
+  <p style="margin:0">You've hit your ${num(g)}-word goal ${EVERY} times. Raise the bar by ${STEP} words starting tomorrow, or keep it where it is.</p>
+  <div class="btns"><button class="btn btn-primary" data-act="lvl-yes">Yes, make it ${num(g+STEP)}</button><button class="btn btn-ghost" data-act="lvl-no">Keep ${num(g)}</button></div></section>`;
+}
+function vHome(){
+  const m=wordsByDay(),t=today(),w=m[t]||0,g=currentGoal(),sk=streak(m),done=w>=g;
+  const left=Math.max(0,g-w);
+  let line;
+  if(done)line=`Goal met today. Your streak is safe.`;
+  else if(sk)line=`${pl(left,'word')} to keep your ${sk}-day streak.`;
+  else line=w?`${pl(left,'word')} to start a new streak.`:`Write ${num(g)} words today to start a streak.`;
+  // last 7 days strip
+  let week='';for(let i=6;i>=0;i--){const k=addDays(t,-i),x=m[k]||0,cls=met(m,k)?'met':x>0?'part':'';week+=`<div class="wd"><div class="c ${cls}${k===t?' today':''}" title="${esc(niceDate(k)+': '+pl(x,'word'))}">${met(m,k)?IC.check:''}</div>${WD[parseK(k).getDay()].slice(0,2)}</div>`}
+  const hero=`<section class="sheet"><div class="hero"><div class="flame${sk?'':' off'}">${flameSVG()}<span class="n">${sk}</span></div><div class="tx"><div class="big">${sk?pl(sk,'day')+' in a row':'No streak yet'}</div><p class="hint" style="margin-top:4px">${line}</p></div></div>
+    <div class="bar"><i style="width:${Math.min(100,w/g*100)}%"></i></div><div class="barlbl"><span><b>${num(w)}</b> / ${num(g)} words today</span><span>${done?'Done':'Minimum '+num(g)}</span></div>
+    <div class="week">${week}</div></section>`;
+  const P=promptToday();
+  const wip=writes().filter(e=>e.text&&Date.now()-(e.updated||0)<4*864e5).sort((a,b)=>b.updated-a.updated)[0];
+  const promptCard=`<section class="sheet"><p class="eyebrow">Today's prompt</p><span class="kind">${esc(P.k)}</span><p class="prompt">${esc(P.t)}</p><p class="hint">${esc(TIPS_KIND[P.k]||'')}</p>
+    <div class="btns"><button class="btn btn-primary" data-act="write-prompt">Write to this prompt</button></div>
+    <button class="btn btn-link" data-act="write-free">Or free write, no prompt</button>
+    ${wip?`<div class="resume"><div class="tx"><div class="t">${esc(wip.title||firstLine(wip.text))}</div><div class="s">In progress · ${pl(wc(wip.text),'word')}</div></div><button class="btn btn-ghost" data-act="open" data-id="${wip.id}">Continue</button></div>`:''}</section>`;
+  const total=Object.values(m).reduce((a,b)=>a+b,0);
+  const heat=`<section class="sheet"><p class="eyebrow">Last 12 weeks</p>${vHeat(m)}
+    <div class="legend"><span><i class="sw"></i>Goal met</span><span><i class="sw" style="opacity:.4"></i>Wrote, under goal</span></div>
+    <div class="totals"><span>Best streak <b>${best(m)}</b> days</span><span>Total <b>${num(total)}</b> words</span><span>Goal <b>${num(g)}</b>/day</span></div></section>`;
+  const tipI=TIPS[dayNo(t)%TIPS.length];
+  const tip=`<section class="sheet"><p class="eyebrow">From a writer</p><p class="quote">${esc(tipI[1])}</p><div class="who">${esc(tipI[0])}</div></section>`;
+  const inst=S.prefs.tipDone?'':`<section class="sheet"><p class="eyebrow">Tip</p><p style="margin:0">Add this page to your home screen so it opens like an app: on iPhone, open the link in Safari, tap Share, then "Add to Home Screen". Set a daily alarm at the same time to remind yourself to write.</p><button class="btn btn-link" data-act="tipdone">Got it, hide this</button></section>`;
+  return`<header class="top"><div class="brand">One Page a Day</div></header>`+levelCard(m)+hero+promptCard+heat+inst;
+}
+function vHeat(m){
+  const t=today();const dow=(parseK(t).getDay()+6)%7;
+  const start=addDays(t,-(11*7+dow));let cells='';
+  for(let i=0;i<84;i++){const k=addDays(start,i);
+    if(k>t){cells+=`<div class="cell future"></div>`;continue}
+    const x=m[k]||0,cls=met(m,k)?' met':x>0?' part':'';
+    const lbl=niceDate(k)+': '+pl(x,'word');
+    cells+=`<div class="cell${cls}${k===t?' today':''}" title="${esc(lbl)}" aria-label="${esc(lbl)}"></div>`}
+  return`<div class="heat"><div class="days"><span>Mon</span><span></span><span>Wed</span><span></span><span>Fri</span><span></span><span>Sun</span></div><div class="grid">${cells}</div></div>`;
+}
+
+/* ============ JOURNAL ============ */
+function vLog(){
+  const ws=writes();
+  const items=ws.filter(e=>{if(!logQ)return true;const q=logQ.toLowerCase();return(e.title||'').toLowerCase().includes(q)||(e.text||'').toLowerCase().includes(q)});
+  const key=e=>e.date||dk(new Date(e.created||Date.now()));
+  items.sort((a,b)=>key(b).localeCompare(key(a))||(b.updated||0)-(a.updated||0));
+  const sum=`<p class="hint" style="margin:0 2px 10px">${pl(ws.length,'piece')} · ${pl(ws.reduce((a,e)=>a+wc(e.text),0),'word')}</p>`;
+  let html='',last='';
+  for(const e of items){const k=key(e);if(k!==last){html+=`<div class="dayhead">${niceDate(k)}</div>`;last=k}
+    const tags=[e.prompt?`<span class="tag">${esc(e.prompt.k)}</span>`:'',e.fb?'<span class="tag">Feedback</span>':''].join('');
+    html+=`<button class="entry" data-act="open" data-id="${e.id}"><span class="tx"><div class="t">${esc(e.title||firstLine(e.text))}</div>${e.title?`<div class="x1">${esc((e.text||'').slice(0,200))}</div>`:''}<div class="m"><span>${pl(wc(e.text),'word')}</span>${tags}</div></span></button>`}
+  if(!items.length)html=ws.length?`<div class="empty">Nothing matches "${esc(logQ)}".</div>`:`<div class="empty"><div class="big">Your journal is empty</div>Everything you write shows up here, sorted by day.<div class="btns" style="justify-content:center"><button class="btn btn-primary" data-act="write-prompt" style="flex:0 1 auto">Write your first page</button></div></div>`;
+  return`<header class="top"><div class="brand">Journal</div></header>${sum}<input class="search" id="lq" type="search" placeholder="Search your writing…" value="${esc(logQ)}">${html}`;
+}
+
+/* ============ SETTINGS ============ */
+function vSettings(){
+  const g=currentGoal(),m=wordsByDay(),n=metSinceAsk(m);
+  const opts=[];for(let x=100;x<=2000;x+=20)opts.push(x);if(!opts.includes(g))opts.push(g);opts.sort((a,b)=>a-b);
+  const hist=S.prefs.goals.filter(x=>x.from!=='2000-01-01').slice(-4).reverse().map(x=>`${niceDate(x.from)}: ${num(x.goal)}`).join(' · ');
+  return`<header class="top"><div class="brand">Settings</div></header>
+  <section class="sheet"><h2>Daily goal</h2>
+    <div class="set"><div class="tx"><div>Minimum words per day</div><div class="d">Changes apply from today.</div></div><select class="inp" id="s-goal">${opts.map(x=>`<option value="${x}"${x===g?' selected':''}>${num(x)} words</option>`).join('')}</select></div>
+    <div class="set"><div class="tx"><div>Next level-up offer</div><div class="d">Every ${EVERY} goal days you'll be asked whether to add ${STEP} words.</div></div><b style="white-space:nowrap">${Math.min(n,EVERY)} / ${EVERY}</b></div>
+    ${hist?`<p class="goalhist">Goal changes: ${hist}</p>`:''}
+  </section>
+  <section class="sheet"><h2>Your writing</h2>
+    <p style="margin:0">Everything is saved on this device only. Download a backup now and then. To move to a new phone or computer, restore the backup there.</p>
+    <div class="btns"><button class="btn btn-ghost" data-act="backup">Download backup</button><button class="btn btn-ghost" data-act="restore">Restore backup</button></div>
+    <div class="btns" style="margin-top:8px"><button class="btn btn-link" data-act="export">Download all writing as text (.txt)</button></div>
+    <input type="file" id="restoreFile" accept=".json,application/json" hidden>
+  </section>
+  <section class="sheet"><h2>How to make it stick</h2>
+    <p style="margin:0 0 8px">1. Write at the same time every day, like right after breakfast or before bed.</p>
+    <p style="margin:0 0 8px">2. Write first, fix later. First drafts are allowed to be bad.</p>
+    <p style="margin:0">3. On busy days, just get to the minimum. The streak matters more than the length.</p>
+  </section>`;
+}
+
+/* ============ WRITING SESSION ============ */
+function openWrite(id,prompt){
+  let e=id&&S.entries[id];
+  if(!e)e={id:newId(),kind:'write',title:'',text:'',prompt:prompt||null,date:today(),created:Date.now(),updated:0,daily:{},fb:null};
+  e.daily=e.daily||{};
+  const t=today();
+  sess={type:'write',e,base:wc(e.text),baseDaily:e.daily[t]||0,day:t,isNew:!S.entries[e.id],wasMet:met(wordsByDay(),t)};
+  const pr=e.prompt?`<details class="pr" open><summary>Prompt: ${esc(e.prompt.k)}</summary><p>${esc(e.prompt.t)}</p><p class="hint">${esc(TIPS_KIND[e.prompt.k]||'')}</p></details>`:'';
+  $('#sess').innerHTML=`<div class="session" id="sbox"><div class="in">
+    <div class="sbar"><button class="x" data-act="close" aria-label="Close">${IC.x}</button><div class="prog"><i id="wprog"></i></div><span class="count" id="wcount">0 / ${num(currentGoal())}</span></div>
+    ${pr}
+    <input id="wtitle" class="titlein" placeholder="Title (optional)" value="${esc(e.title)}" autocomplete="off" spellcheck="true">
+    <textarea id="wtext" class="paperta" spellcheck="true" placeholder="Start anywhere. Don't stop to fix things, just keep going. First drafts are allowed to be bad.">${esc(e.text)}</textarea>
+    ${e.fb?`<details class="pr"><summary>Claude's last feedback</summary><div class="fbtext" style="margin-top:8px">${md(e.fb.text)}</div></details>`:''}
+    ${sess.isNew?'':'<button class="danger" data-act="del">Delete this piece</button>'}
+  </div>
+  <div class="foot"><div class="in2"><button class="btn btn-primary" data-act="finish">Done for today</button></div></div></div>`;
+  const ta=$('#wtext');grow(ta);updWrite();
+  setTimeout(()=>{ta.focus();ta.setSelectionRange(ta.value.length,ta.value.length)},60);
+}
+function grow(ta){ta.style.height='auto';ta.style.height=Math.max(ta.scrollHeight,window.innerHeight*.6)+'px'}
+function updWrite(){
+  const e=sess.e,t=today();
+  if(t!==sess.day){sess.day=t;sess.base=wc(e.text);sess.baseDaily=e.daily[t]||0;sess.wasMet=false}
+  const added=Math.max(0,wc(e.text)-sess.base);
+  if(added||e.daily[t])e.daily[t]=sess.baseDaily+added;
+  const m=wordsByDay(),w=m[t]||0,g=currentGoal();
+  const c=$('#wcount');if(c){c.textContent=num(w)+' / '+num(g);c.classList.toggle('met',w>=g)}
+  const p=$('#wprog');if(p)p.style.width=Math.min(100,w/g*100)+'%';
+  if(w>=g&&!sess.wasMet){sess.wasMet=true;toast(`${num(g)} words. Today's goal is met!`)}
+}
+let wSaveT=null;
+function onWriteInput(){
+  const e=sess.e;e.text=$('#wtext').value;e.title=$('#wtitle').value;
+  updWrite();
+  if(!e.text.trim()&&!e.title.trim()&&sess.isNew)return;
+  clearTimeout(wSaveT);wSaveT=setTimeout(()=>{if(sess&&sess.e===e){touchEntry(e);sess.isNew=false}},800);
+}
+function finishWrite(){
+  const e=sess.e;clearTimeout(wSaveT);
+  const w=wc(e.text);
+  if(!w&&!e.title.trim()){closeSess();return}
+  touchEntry(e);sess.isNew=false;
+  const t=today(),m=wordsByDay(),added=(e.daily[t]||0)-sess.baseDaily,tw=m[t]||0,g=currentGoal(),sk=streak(m);
+  const msg=tw>=g?`Goal met. Streak: <b>${pl(sk,'day')}</b>.`:`You're at ${num(tw)} of ${num(g)} words today. ${pl(g-tw,'more word')} to keep the streak.`;
+  sess.type='done';
+  const ok=SAMPLE&&w>=30;
+  $('#sbox').innerHTML=`<div class="in"><div class="sbar"><button class="x" data-act="close" aria-label="Close">${IC.x}</button></div>
+    <div class="done"><p class="eyebrow">Session saved</p><div class="big">+${pl(Math.max(0,added),'word')}</div>
+    <p style="margin:0 0 6px">${msg}</p><p class="hint">"${esc(e.title||firstLine(e.text))}" is in your Journal.</p>
+    ${levelCard(m)}
+    <div class="fbbox" id="fbbox"></div>
+    <div class="btns"><button class="btn btn-ghost" id="fbbtn" data-act="fb" data-ok="${w>=30?1:0}"${ok?'':' hidden'}>Get feedback from Claude</button>${tw<g?'<button class="btn btn-ghost" data-act="keep">Keep writing</button>':''}<button class="btn btn-primary" data-act="close">Back to Today</button></div>
+    </div></div>`;
+}
+let fbCtl=null;
+async function askFb(btn){
+  const e=sess.e,box=$('#fbbox');if(!SAMPLE||!box)return;
+  btn.disabled=true;box.innerHTML='<div class="fbtext thinking">Claude is reading your piece…</div>';
+  const prompt=`You are a warm, honest creative writing teacher. Your student wrote the draft below as part of a daily writing habit. They write in English, and English may not be their first language. This is a FIRST DRAFT: do not grade it, do not rewrite it for them, and no generic praise.
+Reply in English, under 170 words total, in exactly 3 short paragraphs, each starting with its bold label:
+**Strongest line:** quote one sentence from the piece word for word and say briefly why it works.
+**Try next:** one concrete suggestion for the next draft (what the character wants, what stands in the way, raising tension, cutting a sentence that does no work, using the senses). Point to the exact spot. If there is one recurring English grammar or word-choice slip, mention it here in one sentence with the correction.
+**Keep going:** one "What if…" question they could write from tomorrow.
+${e.prompt?'Prompt: '+e.prompt.t+'\n':''}Title: ${e.title||'(none)'}
+Draft:
+"""
+${(e.text||'').slice(0,14000)}
+"""`;
+  fbCtl=new AbortController();
+  try{
+    const {text}=await SAMPLE(prompt,{cache:false,signal:fbCtl.signal,onText:({text})=>{if(box.isConnected)box.innerHTML=`<div class="fbtext">${md(text)}</div>`}});
+    e.fb={text,at:Date.now()};touchEntry(e);
+    if(box.isConnected)box.innerHTML=`<div class="fbtext">${md(text)}</div>`;
+    btn.textContent='Ask again';btn.disabled=false;
+  }catch(err){
+    const c=err&&err.code;
+    if(!box.isConnected)return;
+    if(['not_granted','sampling_disabled','not_declared','capability_disabled','capability_removed'].includes(c)){SAMPLE=null;box.innerHTML='';btn.hidden=true;toast("Claude feedback isn't available here.");return}
+    if(c==='cancelled'){box.innerHTML='';btn.disabled=false;return}
+    const why={rate_limited:"You've used a lot of Claude recently. Try again in a few minutes.",session_expired:'Sign in to Claude again, then retry.',refused:"Claude couldn't give feedback on this piece.",prompt_too_large:'This piece is too long. Try a shorter section.'}[c]||'Connection problem. Tap to try again.';
+    box.innerHTML=(err&&err.text?`<div class="fbtext">${md(err.text)}</div>`:'')+`<p class="hint">${why}</p>`;
+    btn.disabled=false;
+  }
+}
+function closeSess(){
+  if(sess&&sess.type==='write'){clearTimeout(wSaveT);const e=sess.e;if(e.text.trim()||e.title.trim())touchEntry(e)}
+  if(fbCtl){try{fbCtl.abort()}catch(x){}fbCtl=null}
+  sess=null;$('#sess').innerHTML='';render();
+}
+async function exportAll(){
+  const ws=writes().sort((a,b)=>(a.created||0)-(b.created||0));
+  if(!ws.length){toast('Nothing to download yet.');return}
+  const txt=ws.map(e=>`${e.title||firstLine(e.text)}\n${e.date||''}${e.prompt?' · Prompt: '+e.prompt.t:''}\n\n${e.text}\n`).join('\n────────────\n\n');
+  saveFile('one-page-a-day-'+today()+'.txt',txt,'text/plain');
+}
+function saveFile(name,data,type){
+  try{const url=URL.createObjectURL(new Blob([data],{type:type+';charset=utf-8'}));const a=document.createElement('a');a.href=url;a.download=name;document.body.appendChild(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(url),4000);toast('Downloaded.')}
+  catch(e){toast("Couldn't download on this device.")}
+}
+function backup(){saveFile('one-page-a-day-backup-'+today()+'.json',JSON.stringify({app:'one-page-a-day',v:1,savedAt:Date.now(),entries:S.entries,prefs:S.prefs}),'application/json')}
+function restore(file){
+  const r=new FileReader();
+  r.onload=()=>{try{const d=JSON.parse(r.result);if(!d||d.app!=='one-page-a-day'||typeof d.entries!=='object')throw 0;
+    let n=0;for(const k in d.entries){const x=d.entries[k];if(!x||x.kind!=='write')continue;const l=S.entries[k];if(!l||(x.updated||0)>(l.updated||0)){S.entries[k]=x;n++}}
+    if(d.prefs&&(d.prefs.updated||0)>(S.prefs.updated||0))S.prefs=Object.assign(blankPrefs(),d.prefs);
+    saveLocal();render();toast('Restored '+n+' piece'+(n===1?'':'s')+'.')}
+  catch(e){toast("That file isn't a One Page a Day backup.")}};
+  r.readAsText(file);
+}
+function answerLevel(yes){
+  const g=currentGoal();S.prefs.askedOn=today();
+  if(yes){setGoal(g+STEP,addDays(today(),1));toast(`From tomorrow, your goal is ${num(g+STEP)} words.`)}
+  else{touchPrefs();toast(`Staying at ${num(g)} words. I'll ask again after ${EVERY} more goal days.`)}
+}
+
+document.addEventListener('click',ev=>{
+  const b=ev.target.closest('[data-act]');if(!b)return;const a=b.dataset.act;
+  if(a==='go'){view=b.dataset.v;if(sess)closeSess();else render();window.scrollTo(0,0)}
+  else if(a==='write-prompt')openWrite(null,promptToday());
+  else if(a==='write-free')openWrite(null,null);
+  else if(a==='next-prompt'){const t=today();if(S.prefs.pDay!==t){S.prefs.pDay=t;S.prefs.pN=0}S.prefs.pN++;touchPrefs();render()}
+  else if(a==='open'){const e=S.entries[b.dataset.id];if(e)openWrite(e.id)}
+  else if(a==='close')closeSess();
+  else if(a==='finish')finishWrite();
+  else if(a==='keep'){const id=sess.e.id;sess=null;openWrite(id)}
+  else if(a==='fb')askFb(b);
+  else if(a==='lvl-yes'||a==='lvl-no'){answerLevel(a==='lvl-yes');const card=b.closest('.lvl');if(sess&&card)card.remove();else render()}
+  else if(a==='del'){if(!armed(b,'Tap again to delete'))return;const e=sess.e;clearTimeout(wSaveT);if(S.entries[e.id]){S.entries[e.id]={id:e.id,kind:'write',deleted:true,updated:0};touchEntry(S.entries[e.id])}sess=null;$('#sess').innerHTML='';render();toast('Deleted.')}
+  else if(a==='tipdone'){S.prefs.tipDone=true;touchPrefs();render()}
+  else if(a==='export')exportAll();
+  else if(a==='backup')backup();
+  else if(a==='restore')$('#restoreFile').click();
+});
+document.addEventListener('input',ev=>{
+  const id=ev.target.id;
+  if(id==='wtext'){grow(ev.target);onWriteInput()}
+  else if(id==='wtitle')onWriteInput();
+  else if(id==='lq'){logQ=ev.target.value;render()}
+});
+document.addEventListener('change',ev=>{
+  if(ev.target.id==='restoreFile'){const f=ev.target.files&&ev.target.files[0];if(f)restore(f);ev.target.value='';return}
+  if(ev.target.id==='s-goal'){const v=+ev.target.value;if(v>0){setGoal(v,today());toast(`Daily goal set to ${num(v)} words.`);render()}}
+});
+document.addEventListener('visibilitychange',()=>{if(document.visibilityState==='hidden'&&sess&&sess.type==='write'){clearTimeout(wSaveT);const e=sess.e;if(e.text.trim()||e.title.trim())touchEntry(e);}else if(document.visibilityState==='visible'&&!sess)render()});
+if('serviceWorker' in navigator&&(location.protocol==='https:'||location.hostname==='localhost'||location.hostname==='127.0.0.1')){addEventListener('load',()=>{navigator.serviceWorker.register('sw.js').catch(()=>{})})}
+render();
+</script>
+
+</body>
+</html>
