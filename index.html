@@ -425,7 +425,21 @@ function openWrite(id,prompt){
   const ta=$('#wtext');grow(ta);updWrite();
   setTimeout(()=>{ta.focus();ta.setSelectionRange(ta.value.length,ta.value.length)},60);
 }
-function grow(ta){ta.style.height='auto';ta.style.height=Math.max(ta.scrollHeight,window.innerHeight*.6)+'px'}
+function grow(ta,typing){
+  // Resizing the textarea briefly collapses it, which made the page jump up on long pieces.
+  // Remember where the page was scrolled and put it back right after measuring.
+  const box=ta.closest('.session'),top=box?box.scrollTop:0;
+  ta.style.height='auto';
+  ta.style.height=Math.max(ta.scrollHeight,window.innerHeight*.6)+'px';
+  if(!box)return;
+  box.scrollTop=top;
+  // When typing at the very end, keep the new line in view above the "Done for today" bar.
+  if(typing&&ta.selectionEnd===ta.value.length){
+    const foot=box.querySelector('.foot'),vh=window.visualViewport?window.visualViewport.height:window.innerHeight;
+    const limit=vh-(foot?foot.offsetHeight:0)-12,bottom=ta.getBoundingClientRect().bottom;
+    if(bottom>limit)box.scrollTop+=bottom-limit;
+  }
+}
 function updWrite(){
   const e=sess.e,t=today();
   if(t!==sess.day){sess.day=t;sess.base=wc(e.text);sess.baseDaily=e.daily[t]||0;sess.wasMet=false}
@@ -541,7 +555,7 @@ document.addEventListener('click',ev=>{
 });
 document.addEventListener('input',ev=>{
   const id=ev.target.id;
-  if(id==='wtext'){grow(ev.target);onWriteInput()}
+  if(id==='wtext'){grow(ev.target,true);onWriteInput()}
   else if(id==='wtitle')onWriteInput();
   else if(id==='lq'){logQ=ev.target.value;render()}
 });
