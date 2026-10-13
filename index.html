@@ -130,6 +130,7 @@ nav.tabs svg{width:24px;height:24px}
 .set .d{font-size:13px;color:var(--soft)}
 .set .tx{min-width:0}
 .inp{padding:10px 12px;border-radius:10px;border:1.5px solid var(--line);background:var(--paper);font-size:16px;max-width:50%}
+.codebox{display:block;width:100%;max-width:none;height:76px;margin-top:14px;resize:none;font-family:ui-monospace,Menlo,Consolas,monospace;font-size:13px;line-height:1.4;word-break:break-all}
 .goalhist{font-size:14px;color:var(--soft);margin:8px 0 0;font-variant-numeric:tabular-nums}
 /* writing session */
 .session{position:fixed;inset:0;z-index:20;background-color:var(--paper);background-image:repeating-linear-gradient(transparent 0 31px,var(--rule) 31px 32px);overflow-y:auto;padding:env(safe-area-inset-top,0px) 0 env(safe-area-inset-bottom,0px)}
@@ -398,6 +399,14 @@ function vSettings(){
     <div class="btns" style="margin-top:8px"><button class="btn btn-link" data-act="export">Download all writing as text (.txt)</button></div>
     <input type="file" id="restoreFile" accept=".json,application/json" hidden>
   </section>
+  <section class="sheet"><h2>Move to another device</h2>
+    <p style="margin:0">Copy a code here, then paste it in the app on your other phone or computer. Writing from both devices is kept. If the same piece is on both, the newer version wins.</p>
+    <div class="btns"><button class="btn btn-primary" data-act="copycode">Copy progress code</button></div>
+    <textarea id="codeout" class="inp codebox" readonly hidden aria-label="Your progress code"></textarea>
+    <p class="hint" id="codehint" hidden>Couldn't copy automatically. Select all the text in the box and copy it.</p>
+    <textarea id="codein" class="inp codebox" placeholder="Paste a code…" autocomplete="off" autocapitalize="off" spellcheck="false" aria-label="Paste a progress code"></textarea>
+    <div class="btns" style="margin-top:8px"><button class="btn btn-ghost" data-act="loadcode">Load progress</button></div>
+  </section>
   <section class="sheet"><h2>How to make it stick</h2>
     <p style="margin:0 0 8px">1. Write at the same time every day, like right after breakfast or before bed.</p>
     <p style="margin:0 0 8px">2. Write first, fix later. First drafts are allowed to be bad.</p>
@@ -520,14 +529,58 @@ function saveFile(name,data,type){
   catch(e){toast("Couldn't download on this device.")}
 }
 function backup(){saveFile('one-page-a-day-backup-'+today()+'.json',JSON.stringify({app:'one-page-a-day',v:1,savedAt:Date.now(),entries:S.entries,prefs:S.prefs}),'application/json')}
+// Merge a backup into this device: keep everything, newer version of each piece wins.
+function mergeData(d){
+  if(!d||d.app!=='one-page-a-day'||typeof d.entries!=='object')throw 0;
+  let n=0;for(const k in d.entries){const x=d.entries[k];if(!x||x.kind!=='write')continue;const l=S.entries[k];if(!l||(x.updated||0)>(l.updated||0)){S.entries[k]=x;n++}}
+  if(d.prefs&&(d.prefs.updated||0)>(S.prefs.updated||0))S.prefs=Object.assign(blankPrefs(),d.prefs);
+  saveLocal();return n;
+}
 function restore(file){
   const r=new FileReader();
-  r.onload=()=>{try{const d=JSON.parse(r.result);if(!d||d.app!=='one-page-a-day'||typeof d.entries!=='object')throw 0;
-    let n=0;for(const k in d.entries){const x=d.entries[k];if(!x||x.kind!=='write')continue;const l=S.entries[k];if(!l||(x.updated||0)>(l.updated||0)){S.entries[k]=x;n++}}
-    if(d.prefs&&(d.prefs.updated||0)>(S.prefs.updated||0))S.prefs=Object.assign(blankPrefs(),d.prefs);
-    saveLocal();render();toast('Restored '+n+' piece'+(n===1?'':'s')+'.')}
+  r.onload=()=>{try{const n=mergeData(JSON.parse(r.result));render();toast('Restored '+pl(n,'piece')+'.')}
   catch(e){toast("That file isn't a One Page a Day backup.")}};
   r.readAsText(file);
+}
+/* Progress code: the backup squeezed into text you can copy and paste.
+   OPD1. = gzip + base64, OPD0. = plain base64 (for browsers without compression). */
+function b64(bytes){let s='';for(let i=0;i<bytes.length;i+=0x8000)s+=String.fromCharCode.apply(null,bytes.subarray(i,i+0x8000));return btoa(s)}
+function unb64(s){const b=atob(s),u=new Uint8Array(b.length);for(let i=0;i<b.length;i++)u[i]=b.charCodeAt(i);return u}
+async function makeCode(){
+  const json=JSON.stringify({app:'one-page-a-day',v:1,savedAt:Date.now(),entries:S.entries,prefs:S.prefs});
+  const raw=new TextEncoder().encode(json);
+  if(window.CompressionStream){try{
+    const z=new Uint8Array(await new Response(new Blob([raw]).stream().pipeThrough(new CompressionStream('gzip'))).arrayBuffer());
+    return 'OPD1.'+b64(z)}catch(e){}}
+  return 'OPD0.'+b64(raw);
+}
+async function readCode(code){
+  code=code.replace(/\s+/g,'');
+  const m=/^OPD([01])\.(.+)$/.exec(code);if(!m)throw 0;
+  let bytes=unb64(m[2]);
+  if(m[1]==='1'){if(!window.DecompressionStream)throw 'old';bytes=new Uint8Array(await new Response(new Blob([bytes]).stream().pipeThrough(new DecompressionStream('gzip'))).arrayBuffer())}
+  return JSON.parse(new TextDecoder().decode(bytes));
+}
+async function copyCode(){
+  const p=makeCode(),out=$('#codeout'),hint=$('#codehint');
+  try{
+    // Safari only allows copying during the tap, so hand it a promise right away.
+    if(window.ClipboardItem&&navigator.clipboard&&navigator.clipboard.write){
+      await navigator.clipboard.write([new ClipboardItem({'text/plain':p.then(c=>new Blob([c],{type:'text/plain'}))})]);
+    }else await navigator.clipboard.writeText(await p);
+    if(out)out.hidden=true;if(hint)hint.hidden=true;
+    toast('Code copied. Paste it in the app on your other device.');
+  }catch(e){
+    try{await navigator.clipboard.writeText(await p);toast('Code copied. Paste it in the app on your other device.');return}catch(e2){}
+    if(out){out.value=await p;out.hidden=false;out.focus();out.select()}
+    if(hint)hint.hidden=false;
+  }
+}
+async function loadCode(){
+  const box=$('#codein'),v=box?box.value.trim():'';
+  if(!v){toast('Paste a code first.');return}
+  try{const n=mergeData(await readCode(v));render();toast(n?`Loaded ${pl(n,'piece')}.`:'Already up to date. Nothing new in that code.')}
+  catch(e){toast(e==='old'?'This browser is too old to read that code. Use a backup file instead.':"That doesn't look like a complete progress code. Copy it again and paste the whole thing.")}
 }
 function answerLevel(yes){
   const g=currentGoal();S.prefs.askedOn=today();
@@ -552,6 +605,8 @@ document.addEventListener('click',ev=>{
   else if(a==='export')exportAll();
   else if(a==='backup')backup();
   else if(a==='restore')$('#restoreFile').click();
+  else if(a==='copycode')copyCode();
+  else if(a==='loadcode')loadCode();
 });
 document.addEventListener('input',ev=>{
   const id=ev.target.id;
